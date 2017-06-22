@@ -8,10 +8,9 @@
             "email": "see.irvan@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {},
-    "require-dev" : {
-        "illuminate/database": "5.4.x-dev",
-        "monolog/monolog": "1.x-dev"
+    "minimum-stability": "stable",
+    "require": {
+        "illuminate/database": "^5.4",
+        "monolog/monolog": "^1.23"
     }
 }
