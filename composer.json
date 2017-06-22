@@ -1,0 +1,16 @@
+{
+    "name": "peang/service-skeleton",
+    "description": "Collection of reusable component for PHP Application",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Irvan",
+            "email": "see.irvan@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "illuminate/database": "5.4.x-dev",
+        "monolog/monolog": "1.x-dev"
+    }
+}
