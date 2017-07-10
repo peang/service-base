@@ -1,5 +1,5 @@
 <?php
-namespace base\helpers;
+namespace peang\base\helpers;
 
 /**
  * Collection of helpers to make your life easier

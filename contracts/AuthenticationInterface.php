@@ -1,5 +1,5 @@
 <?php
-namespace base\contracts;
+namespace peang\base\contracts;
 
 /**
  * Contracts for all authentication adapter
@@ -18,7 +18,7 @@ interface AuthenticationInterface
 
     /**
      * This will validate every request token before returning any API's value
-     * @return mixed
+     * @return void
      */
     public function validate();
 }

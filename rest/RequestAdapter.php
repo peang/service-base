@@ -1,6 +1,8 @@
 <?php
+namespace peang\base\rest;
 
-namespace base\rest;
+use Respect\Validation\Rules\Type;
+use Respect\Validation\Validator;
 
 /**
  * @package base\rest
@@ -13,8 +15,25 @@ abstract class RequestAdapter
      */
     protected $contentData;
 
+    /**
+     * @return array
+     */
+    abstract function getForm();
+
     public function validate()
     {
+        $validator = new Validator();
+        $forms = $this->getForm();
 
+        foreach ($forms as $input => $rules) {
+            /** @var Type $rule */
+            foreach ($rules as $rule) {
+                $validator::between(3, 10)->check($input);
+            }
+
+            $validator->check($input);
+        }
+        var_dump($forms);
+        die;
     }
 }

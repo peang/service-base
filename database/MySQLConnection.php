@@ -1,8 +1,8 @@
 <?php
 namespace base\database;
 
-use base\abstraction\DatabaseConnection;
-use base\contracts\DatabaseConnectionInterface;
+use peang\base\abstraction\DatabaseConnection;
+use peang\base\contracts\DatabaseConnectionInterface;
 use base\helpers\Helpers;
 use Illuminate\Container\Container;
 use Illuminate\Database\ConnectionResolver;

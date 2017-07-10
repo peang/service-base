@@ -1,12 +1,11 @@
 <?php
-namespace base\abstraction;
+namespace peang\base\abstraction;
 
-use base\App;
+use base\Base;
 use base\contracts\DatabaseConnectionInterface;
 use base\database\MySQLConnection as MysqlConnection;
 use base\helpers\Helpers;
 use Interop\Container\ContainerInterface;
-use Symfony\Component\Console\Helper\Helper;
 
 /**
  * Connect database
@@ -42,7 +41,7 @@ abstract class DatabaseConnection
     private static function getConnectionDb()
     {
         /** @var ContainerInterface $container */
-        $container = App::$app->getContainer();
+        $container = Base::$app->getContainer();
 
         $dbConfigs = Helpers::getValue($container, 'settings')['db'];
 
