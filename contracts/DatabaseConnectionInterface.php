@@ -1,5 +1,5 @@
 <?php
-namespace base\contracts;
+namespace peang\base\contracts;
 
 /**
  * Contracts for adapt database conenction provided

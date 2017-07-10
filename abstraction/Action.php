@@ -1,6 +1,6 @@
 <?php
 
-namespace base\abstraction;
+namespace peang\base\abstraction;
 
 /**
  * @package base\abstraction
