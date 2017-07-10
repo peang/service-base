@@ -16,5 +16,10 @@
         "robmorgan/phinx"           :"0.5.*",
         "illuminate/database"       : "^5.4",
         "monolog/monolog"           : "^1.23"
+    },
+    "autoload": {
+        "psr-4": {
+            "peang\\": "src/"
+        }
     }
 }
