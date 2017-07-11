@@ -1,6 +1,6 @@
 <?php
 
-namespace peang\exceptions
+namespace peang\exceptions;
 
 /**
  * @package base\exceptions
