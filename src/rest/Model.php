@@ -1,8 +1,10 @@
 <?php
 namespace peang\rest;
 
+use peang\exceptions\InvalidModelConfigurationException;
 use peang\helpers\Helpers;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Ramsey\Uuid\Uuid;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator;
 use Slim\Http\Request;
@@ -52,7 +54,7 @@ abstract class Model extends EloquentModel
             $query->where($primaryKey, '=', $primaryKeyValue);
         }
 
-        return $query->get()->toArray();
+        return $query->get()->first();
     }
 
     /**
@@ -92,6 +94,14 @@ abstract class Model extends EloquentModel
     }
 
     /**
+     * @param $primaryKey
+     */
+    protected function setPrimaryKey($primaryKey)
+    {
+        $this->primaryKey = $primaryKey;
+    }
+
+    /**
      * @return bool
      */
     public function validate()
@@ -100,7 +110,6 @@ abstract class Model extends EloquentModel
 
         $refl = new \ReflectionClass($this);
         $props = $refl->getProperties();
-
         /** @var \ReflectionProperty $prop */
         foreach ($props as $prop) {
             $validator = new Validator();
@@ -156,6 +165,31 @@ abstract class Model extends EloquentModel
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return bool
+     * @throws InvalidModelConfigurationException
+     */
+    public function save(array $options = [])
+    {
+        $pk = static::getPrimaryKey();
+        $prefix = $this->prefix;
+
+        if (!$prefix) {
+            throw new InvalidModelConfigurationException("Model has no prefix for OID.");
+        }
+
+        if (strlen($prefix) > 4) {
+            throw new InvalidModelConfigurationException("Maximum prefix length is 4 chars");
+        }
+
+        $oid = str_replace('-', '', Uuid::uuid4()->toString());
+        $this->setAttribute($pk, strtoupper(sprintf('%s_%s', $prefix, $oid)));
+
+        return parent::save($options);
     }
 
     /**

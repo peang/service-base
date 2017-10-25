@@ -2,6 +2,7 @@
 
 namespace peang\abstraction;
 
+use peang\rest\Model;
 use Slim\Http\Response;
 
 /**
@@ -18,7 +19,11 @@ class JsonResponse
      *
      * @return Response
      */
-    public static function build(Response $response, $message, $code, $data = null) {
+    public static function build(Response $response, $message, $code, $data = null)
+    {
+        if ($data instanceof Model) {
+            $data = $data->getAttributes();
+        }
 
         return $response->withStatus($code)
                         ->withJson(array_filter([
