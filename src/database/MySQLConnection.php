@@ -8,7 +8,6 @@ use Illuminate\Container\Container;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
-use PDO;
 
 /**
  * @package base\database
@@ -41,7 +40,7 @@ class MySQLConnection extends DatabaseConnection implements DatabaseConnectionIn
     }
 
     /**
-     * @return PDO
+     * @return void
      */
     public function connect()
     {

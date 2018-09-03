@@ -30,6 +30,7 @@ class JwtAuthenticationMiddleware extends JwtAuthentication
 
         /* If rules say we should not authenticate call next and return. */
         if (false === $this->shouldAuthenticate($request)) {
+            $request = $request->withAttribute('token', 'no-jwt');
             return $next($request, $response);
         }
 

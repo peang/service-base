@@ -22,7 +22,7 @@ abstract class DatabaseConnection
     ];
 
     /** @var \PDO $connection */
-    public static $connection;
+    public static $connection = null;
 
     /**
      * @return void

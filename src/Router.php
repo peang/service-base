@@ -16,7 +16,7 @@ use Slim\RouteGroup;
 
 /**
  * @package peang
- * @author  Irvan Setiawan <irvan.setiawan@tafern.com>
+ * @author  Irvan Setiawan <peang.cookie@gmail.com>
  */
 class Router implements RouterInterface
 {

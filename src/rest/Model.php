@@ -1,9 +1,9 @@
 <?php
 namespace peang\rest;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use peang\exceptions\InvalidModelConfigurationException;
 use peang\helpers\Helpers;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Ramsey\Uuid\Uuid;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator;

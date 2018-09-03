@@ -6,7 +6,7 @@ use Respect\Validation\Validator;
 
 /**
  * @package base\rest
- * @author  Irvan Setiawan <irvan.setiawan@tafern.com>
+ * @author  Irvan Setiawan <peang.cookie@gmail.com>
  */
 abstract class RequestAdapter
 {

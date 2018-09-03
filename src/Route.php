@@ -17,7 +17,7 @@ use Slim\Interfaces\RouteInterface;
 
 /**
  * @package peang
- * @author  Irvan Setiawan <irvan.setiawan@tafern.com>
+ * @author  Irvan Setiawan <peang.cookie@gmail.com>
  */
 class Route extends Routable implements RouteInterface
 {
@@ -411,6 +411,8 @@ class Route extends Routable implements RouteInterface
 
     /**
      * @param RequestAdapter $requestAdapter
+     *
+     * @return $this
      */
     public function setRequestAdapter($requestAdapter)
     {

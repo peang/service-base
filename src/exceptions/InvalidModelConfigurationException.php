@@ -5,7 +5,7 @@ use Throwable;
 
 /**
  * @package peang\exceptions
- * @author  Irvan Setiawan <irvan.setiawan@tafern.com>
+ * @author  Irvan Setiawan <peang.cookie@gmail.com>
  */
 class InvalidModelConfigurationException extends \Exception
 {

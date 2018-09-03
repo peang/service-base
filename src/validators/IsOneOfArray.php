@@ -6,7 +6,7 @@ use Respect\Validation\Rules\AbstractRule;
 
 /**
  * @package base\validators
- * @author  Irvan Setiawan <irvan.setiawan@tafern.com>
+ * @author  Irvan Setiawan <peang.cookie@gmail.com>
  */
 class IsOneOfArray extends AbstractRule
 {
