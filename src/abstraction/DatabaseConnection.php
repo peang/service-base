@@ -4,6 +4,7 @@ namespace peang\abstraction;
 
 use peang\Base;
 use peang\contracts\DatabaseConnectionInterface;
+use peang\database\MongoConnection;
 use peang\database\MySQLConnection as MysqlConnection;
 use peang\helpers\Helpers;
 use Interop\Container\ContainerInterface;
@@ -54,7 +55,10 @@ abstract class DatabaseConnection
                     $connectionClass = new MysqlConnection($name, $configs);
                     break;
                 case self::MONGO:
-                    $connectionClass = new MysqlConnection($name, $configs);
+                    $connectionClass = new MongoConnection($name, $configs);
+                    break;
+                case self::MONGO:
+                    $connectionClass = new MongoConnection($name, $configs);
                     break;
                 default:
                     throw new \Exception("Unknown Database Driver");

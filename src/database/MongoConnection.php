@@ -2,8 +2,10 @@
 
 namespace peang\database;
 
+use MongoDB\Client;
 use peang\abstraction\DatabaseConnection;
 use peang\contracts\DatabaseConnectionInterface;
+use peang\helpers\Helpers;
 
 /**
  * Class MongoConnection
@@ -27,15 +29,16 @@ class MongoConnection extends DatabaseConnection implements DatabaseConnectionIn
     }
 
     /**
-     * Connect given config
+     * @return Client|\PDO
      */
     public function connect()
     {
-        $connectionString = sprintf('mongodb://%s:%s@%s:%s/%s', $this->user, $this->pass, $this->host, $this->port, $this->dbname);
-        $connection = new \MongoClient($connectionString);
+        if ($this->user && $this->pass) {
+            $connectionString = sprintf('mongodb://%s:%s@%s:%s', $this->user, $this->pass, $this->host, $this->port);
+        } else {
+            $connectionString = sprintf('mongodb://%s:%s', $this->host, $this->port);
+        }
 
-        $connection->connect();
-
-        return $connection;
+        return new Client($connectionString);
     }
 }
