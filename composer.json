@@ -15,7 +15,8 @@
         "respect/validation"        : "^1.1",
         "robmorgan/phinx"           :"0.5.*",
         "illuminate/database"       : "^5.4",
-        "monolog/monolog"           : "^1.23"
+        "monolog/monolog"           : "^1.23",
+        "predis/predis": "^1.1"
     },
     "autoload": {
         "psr-4": {
