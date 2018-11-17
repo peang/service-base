@@ -1,4 +1,5 @@
 <?php
+
 namespace peang\database;
 
 use peang\abstraction\DatabaseConnection;
@@ -15,8 +16,14 @@ use Illuminate\Database\Eloquent\Model;
  */
 class MySQLConnection extends DatabaseConnection implements DatabaseConnectionInterface
 {
+    /** @var string $name */
+    private $name;
+
     /** @var string $host */
     private $host;
+
+    /** @var string $port */
+    private $port;
 
     /** @var string $user */
     private $user;
@@ -31,39 +38,43 @@ class MySQLConnection extends DatabaseConnection implements DatabaseConnectionIn
      * MySQLConnection constructor.
      * @param $configs
      */
-    public function __construct($configs)
+    public function __construct($name, $configs)
     {
-        $this->host   = Helpers::getValue($configs, 'host');
-        $this->user   = Helpers::getValue($configs, 'user');
-        $this->pass   = Helpers::getValue($configs, 'pass');
+        $this->name = $name;
+        $this->host = Helpers::getValue($configs, 'host');
+        $this->port = Helpers::getValue($configs, 'port');
+        $this->user = Helpers::getValue($configs, 'user');
+        $this->pass = Helpers::getValue($configs, 'pass');
         $this->dbname = Helpers::getValue($configs, 'dbname');
     }
 
     /**
-     * @return void
+     * @return ConnectionResolver|\PDO
      */
     public function connect()
     {
         $settings = array(
-            'driver'    => DatabaseConnection::MYSQL,
-            'host'      => $this->host,
-            'database'  => $this->dbname,
-            'username'  => $this->user,
-            'password'  => $this->pass,
+            'driver' => DatabaseConnection::MYSQL,
+            'host' => $this->host,
+            'port' => $this->port,
+            'database' => $this->dbname,
+            'username' => $this->user,
+            'password' => $this->pass,
             'collation' => 'utf8_general_ci',
-            'charset'   => 'utf8',
-            'prefix'    => ''
+            'charset' => 'utf8'
         );
 
         // Bootstrap Eloquent ORM
-        $container      = new Container();
-        $connFactory    = new ConnectionFactory($container);
-        $conn           = $connFactory->make($settings);
-        $resolver       = new ConnectionResolver();
+        $container = new Container();
+        $connFactory = new ConnectionFactory($container);
+        $conn = $connFactory->make($settings);
+        $resolver = new ConnectionResolver();
 
-        $resolver->addConnection('default', $conn);
-        $resolver->setDefaultConnection('default');
+        $resolver->addConnection($this->name, $conn);
+        if ($this->name === 'default') {
+            $resolver->setDefaultConnection('default');
+        }
 
-        Model::setConnectionResolver($resolver);
+        return $resolver;
     }
 }

@@ -2,6 +2,7 @@
 namespace peang\rest;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use peang\abstraction\DatabaseConnection;
 use peang\exceptions\InvalidModelConfigurationException;
 use peang\helpers\Helpers;
 use Ramsey\Uuid\Uuid;
@@ -24,6 +25,11 @@ abstract class Model extends EloquentModel
     /**
      * @var string
      */
+    public $connectionName = 'default';
+
+    /**
+     * @var string
+     */
     public $prefix;
 
     /**
@@ -32,7 +38,8 @@ abstract class Model extends EloquentModel
     public function __construct()
     {
         $this->setTable($this->getTableNames());
-        
+
+        self::setConnectionResolver(DatabaseConnection::getConnections()[$this->connectionName]);
         parent::__construct();
     }
 

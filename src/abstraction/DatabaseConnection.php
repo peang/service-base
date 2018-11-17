@@ -1,4 +1,5 @@
 <?php
+
 namespace peang\abstraction;
 
 use peang\Base;
@@ -15,14 +16,13 @@ use Interop\Container\ContainerInterface;
 abstract class DatabaseConnection
 {
     const MYSQL = 'mysql';
+    const MONGO = 'mongo';
+    const REDIS = 'redis';
 
-    /** @var array $dbDriver */
-    private static $dbDriver = [
-        'mysql'
-    ];
-
-    /** @var \PDO $connection */
-    public static $connection = null;
+    /**
+     * @var array
+     */
+    private static $connections = [];
 
     /**
      * @return void
@@ -31,8 +31,6 @@ abstract class DatabaseConnection
     {
         /** @var DatabaseConnectionInterface $connectionClass */
         $connectionClass = self::getConnectionDb();
-
-        self::$connection = $connectionClass->connect();
     }
 
     /**
@@ -43,29 +41,31 @@ abstract class DatabaseConnection
         /** @var ContainerInterface $container */
         $container = Base::$app->getContainer();
 
-        $dbConfigs = Helpers::getValue($container, 'settings')['db'];
+        $databases = Helpers::getValue($container, 'settings')['db'];
 
-        $connectionDriver = Helpers::getValue($dbConfigs, 'driver');
+        foreach ($databases as $name => $configs) {
+            $connectionDriver = Helpers::getValue($configs, 'driver');
+            unset($configs['driver']);
 
-        $configs = [
-            'host'   => Helpers::getValue($dbConfigs, 'host'),
-            'user'   => Helpers::getValue($dbConfigs, 'user'),
-            'pass'   => Helpers::getValue($dbConfigs, 'pass'),
-            'dbname' => Helpers::getValue($dbConfigs, 'dbname')
-        ];
+            switch ($connectionDriver) {
+                case self::MYSQL:
+                    $connectionClass = new MysqlConnection($name, $configs);
+                    break;
+                case self::MONGO:
+                    $connectionClass = new MysqlConnection($name, $configs);
+                    break;
+                default:
+                    throw new \Exception("Unknown Database Driver");
+            }
 
-        if (!in_array($connectionDriver, self::$dbDriver)) {
-            throw new \PDOException("unknown database driver");
+            self::$connections[$name] = $connectionClass->connect();
         }
+    }
 
-        switch ($connectionDriver) {
-            case self::MYSQL:
-                $connectionClass = new MysqlConnection($configs);
-                break;
-            default:
-                throw new \PDOException("unknown database driver");
-        }
-
-        return $connectionClass;
+    /**
+     * @return array
+     */
+    public static function getConnections() {
+        return self::$connections;
     }
 }
