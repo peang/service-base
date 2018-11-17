@@ -2,13 +2,12 @@
 
 namespace peang\database;
 
-use peang\abstraction\DatabaseConnection;
-use peang\contracts\DatabaseConnectionInterface;
-use peang\helpers\Helpers;
 use Illuminate\Container\Container;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\Eloquent\Model;
+use peang\abstraction\DatabaseConnection;
+use peang\contracts\DatabaseConnectionInterface;
+use peang\helpers\Helpers;
 
 /**
  * @package base\database
@@ -37,6 +36,7 @@ class MySQLConnection extends DatabaseConnection implements DatabaseConnectionIn
     /**
      * MySQLConnection constructor.
      * @param $configs
+     * @throws \HttpInvalidParamException
      */
     public function __construct($name, $configs)
     {
@@ -49,7 +49,7 @@ class MySQLConnection extends DatabaseConnection implements DatabaseConnectionIn
     }
 
     /**
-     * @return ConnectionResolver|\PDO
+     * @return ConnectionResolver
      */
     public function connect()
     {

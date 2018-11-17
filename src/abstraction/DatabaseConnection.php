@@ -26,15 +26,17 @@ abstract class DatabaseConnection
 
     /**
      * @return void
+     * @throws \Exception
      */
     public static function connectDb()
     {
         /** @var DatabaseConnectionInterface $connectionClass */
-        $connectionClass = self::getConnectionDb();
+        self::getConnectionDb();
     }
 
     /**
      * @return DatabaseConnectionInterface
+     * @throws \HttpInvalidParamException
      */
     private static function getConnectionDb()
     {
