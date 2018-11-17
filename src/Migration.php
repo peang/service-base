@@ -23,14 +23,14 @@ class Migration extends AbstractMigration
     {
         $this->capsule = new Capsule();
         $this->capsule->addConnection([
-            'driver'    => Helpers::getValue(Base::getConfigs(), 'settings.db.driver'),
-            'host'      => Helpers::getValue(Base::getConfigs(), 'settings.db.host'),
-            'port'      => Helpers::getValue(Base::getConfigs(), 'settings.db.port'),
-            'database'  => Helpers::getValue(Base::getConfigs(), 'settings.db.dbname'),
-            'username'  => Helpers::getValue(Base::getConfigs(), 'settings.db.user'),
-            'password'  => Helpers::getValue(Base::getConfigs(), 'settings.db.pass'),
-            'charset'   => Helpers::getValue(Base::getConfigs(), 'settings.db.charset', 'utf8'),
-            'collation' => Helpers::getValue(Base::getConfigs(), 'settings.db.collation', 'utf8_unicode_ci'),
+            'driver'    => Helpers::getValue(Base::getConfigs(), 'settings.db.default.driver'),
+            'host'      => Helpers::getValue(Base::getConfigs(), 'settings.db.default.host'),
+            'port'      => Helpers::getValue(Base::getConfigs(), 'settings.db.default.port'),
+            'database'  => Helpers::getValue(Base::getConfigs(), 'settings.db.default.dbname'),
+            'username'  => Helpers::getValue(Base::getConfigs(), 'settings.db.default.user'),
+            'password'  => Helpers::getValue(Base::getConfigs(), 'settings.db.default.pass'),
+            'charset'   => Helpers::getValue(Base::getConfigs(), 'settings.db.default.charset', 'utf8'),
+            'collation' => Helpers::getValue(Base::getConfigs(), 'settings.db.default.collation', 'utf8_unicode_ci'),
         ]);
 
         $this->capsule->bootEloquent();
