@@ -13,6 +13,25 @@ use peang\helpers\Helpers;
  */
 class MongoConnection extends DatabaseConnection implements DatabaseConnectionInterface
 {
+    /** @var string $name */
+    private $name;
+
+    /** @var string $host */
+    private $host;
+
+    /** @var string $port */
+    private $port;
+
+    /** @var string $user */
+    private $user;
+
+    /** @var string $user */
+    private $pass;
+
+    /** @var string $dbname */
+    private $dbname;
+
+
     /**
      * MySQLConnection constructor.
      * @param $configs
