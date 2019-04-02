@@ -19,5 +19,5 @@ interface UserInterface
     /**
      * @return int
      */
-    public function getRoleId();
+    public function getRole();
 }

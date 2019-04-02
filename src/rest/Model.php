@@ -1,7 +1,10 @@
 <?php
+
 namespace peang\rest;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use models\Role;
+use models\User;
 use peang\abstraction\DatabaseConnection;
 use peang\exceptions\InvalidModelConfigurationException;
 use peang\helpers\Helpers;
@@ -154,14 +157,9 @@ abstract class Model extends EloquentModel
     {
         $parsedBody = $request->getParsedBody();
 
-        /** @var \ReflectionClass $reflClass */
-        $class = get_called_class();
-        $reflClass = new \ReflectionClass(new $class());
-
-        /** @var \ReflectionProperty $prop */
-        foreach ($reflClass->getProperties() as $prop) {
-            if ($prop->class == $reflClass->getName()) {
-                $this->setAttribute($prop->getName(), Helpers::getValue($parsedBody, $prop->getName()));
+        foreach ($parsedBody as $itemName => $itemValue) {
+            if ($itemValue !== null) {
+                $this->setAttribute($itemName, $itemValue);
             }
         }
     }
@@ -208,4 +206,89 @@ abstract class Model extends EloquentModel
      * @return string
      */
     abstract public function getTableNames();
+
+    /**
+     * @param int $page
+     * @param int $perPage
+     * @param string $sort
+     * @param array $filters
+     * @return array
+     */
+    public static function getList($page = 1, $perPage = 10, $sort = null, $filters = [])
+    {
+        $page = (int)$page;
+        $perPage = (int)$perPage;
+        $filters = static::splitFilters($filters);
+
+        $query = self::query();
+
+        $query->forPage($page, $perPage);
+
+        if ($filters) {
+            foreach ($filters as $filterField => $filterValue) {
+                $query->where($filterField, 'like', '%' . $filterValue . '%');
+            }    
+        }
+        // Add filter user by organization id
+        $query->where('organization_id', \Api::$user->getAttribute('organization_id'));
+        $query->whereKeyNot(\Api::$user->getId());
+
+        if ($sort) {
+            if (substr($sort, 0, 1) === '-') {
+                $sortString = substr($sort, 1, strlen($sort));
+
+                /** @var Collection $users */
+                $query
+                    ->orderBy($sortString, 'desc')
+                    ->get();
+            } else {
+                /** @var Collection $users */
+                $query
+                    ->orderBy($sort)
+                    ->get();
+            }
+        }
+
+        /** @var Collection $users */
+        $data = $query->get();
+        $totalDataAll = $query->count();
+
+        return [
+            'result' => $data,
+            'meta' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'count' => $query->count(),
+                'total' => $totalDataAll
+            ]
+        ];
+    }
+
+    /**
+     * @param $filters
+     */
+    protected static function splitFilters($filters)
+    {
+        $filterData = explode(';', $filters);
+        $filterResult = [];
+
+        if (count($filterData)> 0) {
+            foreach ($filterData as $filterString) {
+                if ($filterString) {
+                    $filter = explode(' ', $filterString);
+                    $filterField = Helpers::getValue($filter, 0);
+                    // Operator is not yet used
+                    $filterOperator = Helpers::getValue($filter, 1);
+                    $filterValue = Helpers::getValue($filter, 2);
+
+                    if ($filterValue) {
+                        $filterResult[$filterField] = $filterValue;
+                    }
+                }
+            }
+        }
+
+        return $filterResult;
+    }
+
 }
