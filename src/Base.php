@@ -16,6 +16,11 @@ class Base
     /**
      * @var array
      */
+    public static $db = [];
+
+    /**
+     * @var array
+     */
     protected static $configs;
 
     /**

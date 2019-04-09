@@ -12,6 +12,7 @@ use Ramsey\Uuid\Uuid;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator;
 use Slim\Http\Request;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * Base Model to use for query
@@ -44,6 +45,30 @@ abstract class Model extends EloquentModel
 
         self::setConnectionResolver(DatabaseConnection::getConnections()[$this->connectionName]);
         parent::__construct();
+    }
+
+    /**
+     * @param $op
+     * @return mixed
+     * @throws \HttpInvalidParamException
+     */
+    public static function filtersOp($op) {
+        $ops = [
+            'eq' => '=',
+            'neq' => '!=',
+            'gt' => '>',
+            'gte' => '>=',
+            'lt' => '<',
+            'lte' => '<=',
+            'like' => 'like'
+        ];
+
+        $op = Helpers::getValue($ops, $op, null);
+        if ($op === null) {
+            throw new InvalidConfigurationException('Unknown Operator');
+        }
+
+        return $op;
     }
 
     /**
@@ -157,11 +182,7 @@ abstract class Model extends EloquentModel
     {
         $parsedBody = $request->getParsedBody();
 
-        foreach ($parsedBody as $itemName => $itemValue) {
-            if ($itemValue !== null) {
-                $this->setAttribute($itemName, $itemValue);
-            }
-        }
+        $this->fill($parsedBody);
     }
 
     /**
@@ -192,9 +213,14 @@ abstract class Model extends EloquentModel
         }
 
         $oid = str_replace('-', '', Uuid::uuid4()->toString());
-        $this->setAttribute($pk, strtoupper(sprintf('%s_%s', $prefix, $oid)));
+        $uuid = strtoupper(sprintf('%s_%s', $prefix, $oid));
+        $this->setAttribute($pk, $uuid);
 
-        return parent::save($options);
+        if (parent::save($options)) {
+            return $uuid;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -221,14 +247,15 @@ abstract class Model extends EloquentModel
         $filters = static::splitFilters($filters);
 
         $query = self::query();
-
+        if ($filters) {
+            foreach ($filters as $filterField => $filter) {
+                $query->where($filterField, $filter['op'], $filter['val']);
+            }
+        }
+        $totalDataAll = $query->count();
+        
         $query->forPage($page, $perPage);
 
-        if ($filters) {
-            foreach ($filters as $filterField => $filterValue) {
-                $query->where($filterField, 'like', '%' . $filterValue . '%');
-            }    
-        }
         // Add filter user by organization id
         $query->where('organization_id', \Api::$user->getAttribute('organization_id'));
         $query->whereKeyNot(\Api::$user->getId());
@@ -251,14 +278,12 @@ abstract class Model extends EloquentModel
 
         /** @var Collection $users */
         $data = $query->get();
-        $totalDataAll = $query->count();
 
         return [
             'result' => $data,
             'meta' => [
                 'page' => $page,
                 'per_page' => $perPage,
-                'count' => $query->count(),
                 'total' => $totalDataAll
             ]
         ];
@@ -272,7 +297,7 @@ abstract class Model extends EloquentModel
         $filterData = explode(';', $filters);
         $filterResult = [];
 
-        if (count($filterData)> 0) {
+        if (count($filterData) > 0) {
             foreach ($filterData as $filterString) {
                 if ($filterString) {
                     $filter = explode(' ', $filterString);
@@ -282,7 +307,10 @@ abstract class Model extends EloquentModel
                     $filterValue = Helpers::getValue($filter, 2);
 
                     if ($filterValue) {
-                        $filterResult[$filterField] = $filterValue;
+                        $filterResult[$filterField] = [
+                            'op' => static::filtersOp($filterOperator),
+                            'val' => ($filterOperator === 'like' ? '%'.$filterValue.'%' : $filterValue)
+                        ];
                     }
                 }
             }
