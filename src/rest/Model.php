@@ -116,6 +116,29 @@ abstract class Model extends EloquentModel
     }
 
     /**
+     * @param $params
+     *
+     * @return object|static|null
+     */
+    public static function findBy($params)
+    {
+        $query = self::query();
+
+        foreach ($params as $key => $value) {
+            $query->where($key, '=', $value);
+        }
+
+        /** @var static $result */
+        $result = $query->get()->all();
+
+        if ($result) {
+            return $result;
+        }
+
+        return $result;
+    }
+
+    /**
      * @return mixed
      */
     protected static function getPrimaryKey()
@@ -162,7 +185,7 @@ abstract class Model extends EloquentModel
                     $params = $e->getParams();
 
                     $params['name'] = $prop->getName();
-
+                    
                     $this->errors[$prop->getName()] = ValidationException::format($template, $params);
                 }
             }
@@ -183,6 +206,8 @@ abstract class Model extends EloquentModel
         $parsedBody = $request->getParsedBody();
 
         $this->fill($parsedBody);
+
+        return $this;
     }
 
     /**
@@ -257,7 +282,9 @@ abstract class Model extends EloquentModel
         $query->forPage($page, $perPage);
 
         // Add filter user by organization id
-        $query->where('organization_id', \Api::$user->getAttribute('organization_id'));
+        if (\Api::$user->getRoleId() !== Role::ADMIN_STRING) {
+            $query->where('organization_id', \Api::$user->getAttribute('organization_id'));
+        }
         $query->whereKeyNot(\Api::$user->getId());
 
         if ($sort) {

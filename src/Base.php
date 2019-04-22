@@ -24,6 +24,32 @@ class Base
     protected static $configs;
 
     /**
+     * @var array
+     */
+    protected static $configsLocal;
+
+    /**
+     * @var array
+     */
+    protected static $paramsLocal;
+
+    /**
+     * @return array
+     */
+    public static function getConfigsLocal()
+    {
+        return self::$configsLocal;
+    }
+
+    /**
+     * @param array $configs
+     */
+    public static function setConfigsLocal($configsLocal)
+    {
+        self::$configsLocal = $configsLocal;
+    }
+
+    /**
      * @return array
      */
     public static function getConfigs()
@@ -37,5 +63,21 @@ class Base
     public static function setConfigs($configs)
     {
         self::$configs = $configs;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getParamsLocal()
+    {
+        return self::$paramsLocal;
+    }
+
+    /**
+     * @param array $configs
+     */
+    public static function setParamsLocal($paramsLocal)
+    {
+        self::$paramsLocal = $paramsLocal;
     }
 }
