@@ -224,7 +224,7 @@ abstract class Model extends EloquentModel
      * @return bool
      * @throws InvalidModelConfigurationException
      */
-    public function save(array $options = [])
+    public function saveModel(array $options = [])
     {
         $pk = static::getPrimaryKey();
         $prefix = $this->prefix;

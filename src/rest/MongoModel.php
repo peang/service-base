@@ -133,9 +133,9 @@ abstract class MongoModel
         if ($attributes) {
             foreach ($attributes as $attributeName => $attributeValue) {
                 switch ($attributeValue) {
-//                    case is_a($attributeValue, ObjectId::class):
-//                        $this->attributesValue['id'] = (string)$attributeValue;
-//                        break;
+                    case is_a($attributeValue, 'string'):
+                        $this->attributesValue[$attributeName] = (string) $attributeValue;
+                        break;
                     case is_a($attributeValue, BSONDocument::class):
                         $this->attributesValue[$attributeName] = (array) $attributeValue;
                         break;
@@ -144,6 +144,7 @@ abstract class MongoModel
                         break;
                     default:
                         $this->attributesValue[$attributeName] = $attributeValue;
+                        break;
                 }
             }
         }
