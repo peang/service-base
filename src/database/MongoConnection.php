@@ -71,11 +71,7 @@ class MongoConnection extends DatabaseConnection implements DatabaseConnectionIn
         } else {
             $connectionString = sprintf('%s://%s:%s', $prefix, $this->host, $this->port);
         }
-
-//        var_dump($connectionString);
-//        $client = new Client($connectionString);
-//        var_dump($client->listDatabases());
-//        die;
+        
         return new Client($connectionString);
     }
 }

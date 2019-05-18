@@ -2,6 +2,7 @@
 
 namespace peang\rest;
 
+use helpers\Filter;
 use models\Role;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -51,30 +52,6 @@ abstract class MongoModel
      * @var array 
      */
     protected $errors = [];
-
-    /**
-     * @param $op
-     * @return mixed
-     * @throws \HttpInvalidParamException
-     */
-    public static function filtersOp($op) {
-        $ops = [
-            'eq' => '=',
-            'neq' => '!=',
-            'gt' => '>',
-            'gte' => '>=',
-            'lt' => '<',
-            'lte' => '<=',
-            'like' => 'like'
-        ];
-
-        $op = Helpers::getValue($ops, $op, null);
-        if ($op === null) {
-            throw new InvalidConfigurationException('Unknown Operator');
-        }
-
-        return $op;
-    }
 
     /**
      * Model constructor.
@@ -152,6 +129,28 @@ abstract class MongoModel
     }
 
     /**
+     * @param $attributeName
+     * @param $attributeValue
+     */
+    public function setAttributeValue($attributeName, $attributeValue)
+    {
+        switch ($attributeValue) {
+            case is_a($attributeValue, 'string'):
+                $this->attributesValue[$attributeName] = (string) $attributeValue;
+                break;
+            case is_a($attributeValue, BSONDocument::class):
+                $this->attributesValue[$attributeName] = (array) $attributeValue;
+                break;
+            case (!$attributeValue):
+                $this->attributesValue[$attributeName] = null;
+                break;
+            default:
+                $this->attributesValue[$attributeName] = $attributeValue;
+                break;
+        }
+    }
+
+    /**
      * @return bool
      */
     public function validate()
@@ -190,23 +189,17 @@ abstract class MongoModel
         return true;
     }
 
-    public static function getList($page = 1, $perPage = 10, $sort = null, $filters = null) {
+    /**
+     * @param int $page
+     * @param int $perPage
+     * @param null $sort
+     * @param null $filters
+     * @return array
+     */
+    public static function getList($page = 1, $perPage = 10, $sort = null, Filter $filters = null) {
         $self = new static();
         $skip = (int) ($perPage * ($page - 1));
         $limit = (int) $perPage;
-        $filters = static::splitFilters($filters);
-        $filterArray = [
-            'organization_id' => \Api::$user->getAttribute('organization_id')
-        ];
-        if (\Api::$user->role_id === Role::MERCHANT_STRING) {
-            $filterArray['user_id'] = \Api::$user->getId();
-        }
-
-        if ($filters) {
-            foreach ($filters as $filterField => $filter) {
-                $filterArray[$filterField] = $filter['val'];
-            }
-        }
 
         if ($sort) {
             if (substr($sort, 0, 1) === '-') {
@@ -220,14 +213,14 @@ abstract class MongoModel
                 ];
             }
         }
-        
-        $list = $self->connection->find($filterArray, [
+
+        $list = $self->connection->find($filters->serialize(), [
             'limit' => $limit,
             'skip' => $skip,
             'sort' => $sort
         ]);
 
-        $count = $self->connection->countDocuments($filterArray);
+        $count = $self->connection->countDocuments($filters->serialize());
 
         return [
             'result' => $list->toArray(),
@@ -237,41 +230,6 @@ abstract class MongoModel
                 'total' => $count
             ]
         ];
-    }
-
-    /**
-     * @param $filters
-     */
-    protected static function splitFilters($filters)
-    {
-        $filterData = explode(';', $filters);
-        $filterResult = [];
-
-        if (count($filterData) > 0) {
-            foreach ($filterData as $filterString) {
-                if ($filterString) {
-                    $filter = explode(' ', $filterString);
-                    $filterField = Helpers::getValue($filter, 0);
-                    // Operator is not yet used
-                    $filterOperator = Helpers::getValue($filter, 1);
-                    $filterValue = Helpers::getValue($filter, 2);
-
-                    if ($filterValue) {
-                        if ($filterOperator === 'like') {
-                            $val = new Regex('^'.$filterValue);
-                        } else {
-                            $val = $filterValue;
-                        }
-                        $filterResult[$filterField] = [
-                            'op' => static::filtersOp($filterOperator),
-                            'val' => $val
-                        ];
-                    }
-                }
-            }
-        }
-
-        return $filterResult;
     }
 
     /**

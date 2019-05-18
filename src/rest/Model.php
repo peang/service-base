@@ -2,6 +2,7 @@
 
 namespace peang\rest;
 
+use helpers\Filter;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use models\Role;
 use models\User;
@@ -13,6 +14,7 @@ use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator;
 use Slim\Http\Request;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Api;
 
 /**
  * Base Model to use for query
@@ -127,7 +129,7 @@ abstract class Model extends EloquentModel
         foreach ($params as $key => $value) {
             $query->where($key, '=', $value);
         }
-
+        
         /** @var static $result */
         $result = $query->get()->all();
 
@@ -165,7 +167,7 @@ abstract class Model extends EloquentModel
     public function validate()
     {
         $modelRules = $this->getRules();
-
+        
         $refl = new \ReflectionClass($this);
         $props = $refl->getProperties();
         /** @var \ReflectionProperty $prop */
@@ -190,7 +192,7 @@ abstract class Model extends EloquentModel
                 }
             }
         }
-
+        
         if (!empty($this->errors)) {
             throw new ValidationException('Validation Exception.', 422);
         }
@@ -219,9 +221,16 @@ abstract class Model extends EloquentModel
     }
 
     /**
+     * @return array
+     */
+    public function addError($attribute, $error)
+    {
+        return $this->errors[$attribute] = $error;
+    }
+
+    /**
      * @param array $options
-     *
-     * @return bool
+     * @return string|null
      * @throws InvalidModelConfigurationException
      */
     public function saveModel(array $options = [])
@@ -244,7 +253,7 @@ abstract class Model extends EloquentModel
         if (parent::save($options)) {
             return $uuid;
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -265,27 +274,26 @@ abstract class Model extends EloquentModel
      * @param array $filters
      * @return array
      */
-    public static function getList($page = 1, $perPage = 10, $sort = null, $filters = [])
+    public static function getList($page = 1, $perPage = 10, $sort = null, Filter $filters = null)
     {
         $page = (int)$page;
         $perPage = (int)$perPage;
-        $filters = static::splitFilters($filters);
-
+        
         $query = self::query();
         if ($filters) {
-            foreach ($filters as $filterField => $filter) {
+            foreach ($filters->filterData as $filterField => $filter) {
                 $query->where($filterField, $filter['op'], $filter['val']);
             }
         }
         $totalDataAll = $query->count();
-        
+
         $query->forPage($page, $perPage);
 
         // Add filter user by organization id
-        if (\Api::$user->getRoleId() !== Role::ADMIN_STRING) {
-            $query->where('organization_id', \Api::$user->getAttribute('organization_id'));
+        if (Api::$user->getRoleId() !== Role::ADMIN_STRING) {
+            $query->where('organization_id', Api::$user->getAttribute('organization_id'));
         }
-        $query->whereKeyNot(\Api::$user->getId());
+        $query->whereKeyNot(Api::$user->getId());
 
         if ($sort) {
             if (substr($sort, 0, 1) === '-') {
@@ -314,36 +322,6 @@ abstract class Model extends EloquentModel
                 'total' => $totalDataAll
             ]
         ];
-    }
-
-    /**
-     * @param $filters
-     */
-    protected static function splitFilters($filters)
-    {
-        $filterData = explode(';', $filters);
-        $filterResult = [];
-
-        if (count($filterData) > 0) {
-            foreach ($filterData as $filterString) {
-                if ($filterString) {
-                    $filter = explode(' ', $filterString);
-                    $filterField = Helpers::getValue($filter, 0);
-                    // Operator is not yet used
-                    $filterOperator = Helpers::getValue($filter, 1);
-                    $filterValue = Helpers::getValue($filter, 2);
-
-                    if ($filterValue) {
-                        $filterResult[$filterField] = [
-                            'op' => static::filtersOp($filterOperator),
-                            'val' => ($filterOperator === 'like' ? '%'.$filterValue.'%' : $filterValue)
-                        ];
-                    }
-                }
-            }
-        }
-
-        return $filterResult;
     }
 
 }

@@ -18,4 +18,10 @@ interface PheanstalkJobInterface
      * @return bool
      */
     public function run($payload);
+
+    /**
+     * @param $payload
+     * @return bool
+     */
+    public function done();
 }
