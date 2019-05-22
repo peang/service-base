@@ -246,15 +246,24 @@ abstract class Model extends EloquentModel
             throw new InvalidModelConfigurationException("Maximum prefix length is 4 chars");
         }
 
-        $oid = str_replace('-', '', Uuid::uuid4()->toString());
-        $uuid = strtoupper(sprintf('%s_%s', $prefix, $oid));
-        $this->setAttribute($pk, $uuid);
+        $oid = $this->generateOid();
+        $this->setAttribute($pk, $oid);
 
         if (parent::save($options)) {
-            return $uuid;
+            return $oid;
         } else {
             return null;
         }
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    public function generateOid()
+    {
+        $oid = str_replace('-', '', Uuid::uuid4()->toString());
+        return strtoupper(sprintf('%s_%s', $this->prefix, $oid));
     }
 
     /**
@@ -285,15 +294,15 @@ abstract class Model extends EloquentModel
                 $query->where($filterField, $filter['op'], $filter['val']);
             }
         }
-        $totalDataAll = $query->count();
-
-        $query->forPage($page, $perPage);
-
         // Add filter user by organization id
         if (Api::$user->getRoleId() !== Role::ADMIN_STRING) {
             $query->where('organization_id', Api::$user->getAttribute('organization_id'));
         }
         $query->whereKeyNot(Api::$user->getId());
+        
+        $totalDataAll = $query->count();
+
+        $query->forPage($page, $perPage);
 
         if ($sort) {
             if (substr($sort, 0, 1) === '-') {
