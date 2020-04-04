@@ -67,7 +67,7 @@ class MongoConnection extends DatabaseConnection implements DatabaseConnectionIn
         if ($this->user && $this->pass) {
             $connectionString = sprintf('%s://%s:%s@%s:%s', $prefix, $this->user, $this->pass, $this->host, $this->port);
         } elseif ($this->dsn) {
-            $connectionString = sprintf('%s://%s/%s?retryWrites=true', $prefix, $this->dsn, $this->dbname);
+            $connectionString = sprintf('%s://%s/%s?retryWrites=true&w=majority', $prefix, $this->dsn, $this->dbname);
         } else {
             $connectionString = sprintf('%s://%s:%s', $prefix, $this->host, $this->port);
         }
