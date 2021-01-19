@@ -14,7 +14,7 @@
         "tuupola/slim-jwt-auth"     : "^2.3",
         "respect/validation"        : "^1.1",
         "robmorgan/phinx"           :"0.5.*",
-        "illuminate/database"       : "^5.4",
+        "illuminate/database"       : "^5.4 || ^6.0",
         "monolog/monolog"           : "^1.23",
         "predis/predis": "^1.1"
     },
